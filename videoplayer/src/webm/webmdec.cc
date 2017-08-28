@@ -8,6 +8,8 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
+#if defined(__APPLE__) || defined(ANDROID) || defined(__ANDROID__)
+
 #include "webm/webmdec.h"
 
 #include <stdio.h> // printf
@@ -296,3 +298,5 @@ void webm_free(struct WebmInputContext *webm_ctx)
 {
   reset(webm_ctx);
 }
+
+#endif

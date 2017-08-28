@@ -1,7 +1,9 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #define LIB_NAME "VideoPlayer"
 #define MODULE_NAME "videoplayer"
@@ -9,6 +11,8 @@
 // Defold SDK
 #define DLIB_LOG_DOMAIN LIB_NAME
 #include <dmsdk/sdk.h>
+
+#if defined(__APPLE__) || defined(ANDROID) || defined(__ANDROID__)
 
 // libvpx + libwebm
 #include <vpx/vpx_decoder.h>
@@ -68,7 +72,7 @@ static int Open(lua_State* L)
     }
     movie->m_Type = MOVIE_TYPE_WEBM;
 
-    if( movie->m_Type == MOVIE_TYPE_WEBM) 
+    if( movie->m_Type == MOVIE_TYPE_WEBM)
     {
         if (webm_guess_framerate(&movie->m_WebmCtx, &movie->m_VpxCtx))
         {
@@ -175,8 +179,8 @@ static int Update(lua_State* L)
     assert(movie != 0);
 
     float dt = (float) luaL_checknumber(L, 2);
-    
-    if( movie->m_Corrupted ) 
+
+    if( movie->m_Corrupted )
     {
         return 0;
     }
@@ -327,4 +331,29 @@ dmExtension::Result FinalizeVideoPlayer(dmExtension::Params* params)
     return dmExtension::RESULT_OK;
 }
 
+#else
+
+static dmExtension::Result AppInitializeVideoPlayer(dmExtension::AppParams* params)
+{
+    return dmExtension::RESULT_OK;
+}
+
+static dmExtension::Result InitializeVideoPlayer(dmExtension::Params* params)
+{
+    return dmExtension::RESULT_OK;
+}
+
+static dmExtension::Result AppFinalizeVideoPlayer(dmExtension::AppParams* params)
+{
+    return dmExtension::RESULT_OK;
+}
+
+static dmExtension::Result FinalizeVideoPlayer(dmExtension::Params* params)
+{
+    return dmExtension::RESULT_OK;
+}
+
+#endif
+
 DM_DECLARE_EXTENSION(VideoPlayer, LIB_NAME, AppInitializeVideoPlayer, AppFinalizeVideoPlayer, InitializeVideoPlayer, 0, 0, FinalizeVideoPlayer)
+
